@@ -1,0 +1,18 @@
+SoundTouch.Net 2.3.2
+Copyright (c) Olaf Woudenberg 2011-2019.
+SoundTouch audio processing library copyright (c) Olli Parviainen.
+License: GNU Lesser General Public License, version 2.1 or later.
+
+This application uses the unmodified SoundTouch.Net.dll as a separate managed
+library to adjust audio tempo while preserving pitch. The library is provided
+without warranty. Its license is included in licenses/SoundTouch.Net-LGPL-2.1.txt.
+The DLL remains separate so it can be replaced with a compatible modified build.
+
+Corresponding library source and build files for this version:
+https://github.com/owoudenberg/soundtouch.net/tree/98e5b8fd2f8efed0ddf7c8f66b435bfb231659dc
+Package: https://www.nuget.org/packages/SoundTouch.Net/2.3.2
+
+NAudio 3.3.0
+Author: Mark Heath and contributors.
+License: MIT.
+Source: https://github.com/naudio/NAudio

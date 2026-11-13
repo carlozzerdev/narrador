@@ -1,0 +1,14 @@
+1
+00:00:00,000 --> 00:00:04,000
+Bienvenido a este videotutorial.
+Vamos a crear tu primer documento.
+
+2
+00:00:04,500 --> 00:00:09,000
+En el menú principal, selecciona la opción Nuevo.
+Después, escribe el título del documento.
+
+3
+00:00:09,500 --> 00:00:14,000
+Para terminar, pulsa Guardar y elige una carpeta.
+Tu documento ya está listo.
