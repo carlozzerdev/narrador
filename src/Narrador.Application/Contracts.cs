@@ -50,6 +50,12 @@ public interface ISecretStore
     void SaveApiKey(string providerId, string? apiKey);
 }
 
+public interface IVideoAudioComposer
+{
+    Task ComposeAsync(string videoPath, string audioPath, string outputPath, bool overwrite,
+        IProgress<TimeSpan>? progress, CancellationToken cancellationToken);
+}
+
 // A class avoids the generated record ToString() exposing the API key.
 public sealed class SpeechRequest(
     string text, string apiKey, string voiceId, string modelId, VoiceSettings settings,
@@ -71,7 +77,20 @@ public sealed record AppSettings(
     double SimilarityBoost = 0.75,
     string? OutputDirectory = null,
     bool RememberApiKey = false,
-    double Speed = 1.0);
+    double Speed = 1.0)
+{
+    public IReadOnlyList<SavedVoice> Voices { get; init; } = SavedVoice.Defaults;
+}
+
+public sealed record SavedVoice(string Name, string VoiceId)
+{
+    public static IReadOnlyList<SavedVoice> Defaults { get; } = Array.AsReadOnly(new[]
+    {
+        new SavedVoice("StoreTeller", "JBFqnCBsd6RMkjVDRZzb"),
+        new SavedVoice("Mari", "uShnBlXHAqA27srS28g2"),
+        new SavedVoice("Nico (PRO)", "FXn3GKRRt9FCEyTbrkaL")
+    });
+}
 
 public sealed record LoadedNarration(IReadOnlyList<SubtitleCue> Cues, string Text);
 public sealed record GenerationProgress(int CompletedChunks, int TotalChunks, string Message);

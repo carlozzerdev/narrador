@@ -16,3 +16,34 @@ NAudio 3.3.0
 Author: Mark Heath and contributors.
 License: MIT.
 Source: https://github.com/naudio/NAudio
+
+FFmpeg (standalone executable, LGPL Windows build by BtbN)
+Copyright (c) 2000-2026 the FFmpeg developers and contributors.
+License: GNU Lesser General Public License, version 3 or later.
+
+The unmodified ffmpeg.exe runs as a separate process for local video/audio muxing.
+Its license is distributed in tools/ffmpeg/LICENSE.txt in the published folder.
+The exact version, compilation options and executable hash are recorded in
+tools/ffmpeg/BUILD.txt. It can be replaced with a compatible FFmpeg executable.
+FFprobe is used by the automated integration tests, not by the application.
+
+FFmpeg source: https://github.com/FFmpeg/FFmpeg
+Source for the bundled build: https://github.com/FFmpeg/FFmpeg/tree/986bab2b47
+Build scripts and dependencies: https://github.com/BtbN/FFmpeg-Builds
+Windows build download: https://github.com/BtbN/FFmpeg-Builds/releases
+
+LibVLCSharp 3.10.2 / LibVLCSharp.WinForms 3.10.2
+VideoLAN.LibVLC.Windows 3.0.24
+Copyright (c) VideoLAN and contributors.
+License: GNU Lesser General Public License, version 2.1 or later.
+
+The unmodified managed libraries and native LibVLC binaries/plugins are
+distributed separately for embedded video playback. They can be replaced with
+compatible builds. The license is included in licenses/LibVLC-LGPL-2.1.txt.
+They are provided without warranty.
+
+LibVLCSharp source: https://code.videolan.org/videolan/LibVLCSharp
+LibVLC 3.0.24 source: https://code.videolan.org/videolan/vlc/-/tree/3.0.24
+Windows package build: https://code.videolan.org/videolan/libvlc-nuget
+Packages: https://www.nuget.org/packages/LibVLCSharp.WinForms/3.10.2
+          https://www.nuget.org/packages/VideoLAN.LibVLC.Windows/3.0.24

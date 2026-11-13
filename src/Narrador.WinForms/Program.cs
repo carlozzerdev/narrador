@@ -3,6 +3,7 @@ using Narrador.Infrastructure.Audio;
 using Narrador.Infrastructure.ElevenLabs;
 using Narrador.Infrastructure.Files;
 using Narrador.Infrastructure.Security;
+using Narrador.Infrastructure.Video;
 
 namespace Narrador.WinForms;
 
@@ -19,7 +20,8 @@ internal static class Program
         var loadSrt = new LoadSrt(new TextFileReader(), new SrtParser());
         var generate = new GenerateSynchronizedNarration([provider], new SrtAudioExporter());
         using var form = new MainForm(loadSrt, generate,
-            new JsonSettingsStore(settingsDirectory), new WindowsSecretStore(settingsDirectory));
+            new JsonSettingsStore(settingsDirectory), new WindowsSecretStore(settingsDirectory),
+            new ApplyNarrationToVideo(new FfmpegVideoAudioComposer()));
         System.Windows.Forms.Application.Run(form);
     }
 }

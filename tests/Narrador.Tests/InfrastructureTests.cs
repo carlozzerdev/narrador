@@ -1,4 +1,6 @@
 using System.Text;
+using System.Security.Cryptography;
+using System.Text.Json;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using Narrador.Application;
@@ -19,10 +21,20 @@ public sealed class InfrastructureTests
         var settings = new AppSettings(RememberApiKey: true, Speed: 2.0);
         settingsStore.Save(settings);
         secrets.SaveApiKey("elevenlabs", "test-key-for-dpapi");
-        Assert.Equal(settings, settingsStore.Load());
+        var loaded = settingsStore.Load();
+        Assert.Equal(settings.Speed, loaded.Speed);
+        Assert.Equal(settings.VoiceId, loaded.VoiceId);
+        Assert.Equal(settings.RememberApiKey, loaded.RememberApiKey);
+        Assert.Equal(settings.Voices, loaded.Voices);
         Assert.Equal("test-key-for-dpapi", secrets.ReadApiKey("elevenlabs"));
         Assert.DoesNotContain("test-key", File.ReadAllText(Path.Combine(directory.Path, "settings.json")));
-        Assert.DoesNotContain("test-key", Encoding.UTF8.GetString(File.ReadAllBytes(Path.Combine(directory.Path, "elevenlabs.key"))));
+        Assert.False(File.Exists(Path.Combine(directory.Path, "elevenlabs.key")));
+        settingsStore.Save(loaded with { Speed = 1.5 });
+        Assert.Equal("test-key-for-dpapi", secrets.ReadApiKey("elevenlabs"));
+        Assert.Equal(1.5, settingsStore.Load().Speed);
+        using var json = JsonDocument.Parse(File.ReadAllText(Path.Combine(directory.Path, "settings.json")));
+        Assert.Equal(3, json.RootElement.GetProperty("Voices").GetArrayLength());
+        Assert.True(json.RootElement.GetProperty("ProtectedApiKeys").TryGetProperty("elevenlabs", out _));
         secrets.SaveApiKey("elevenlabs", null);
         Assert.Null(secrets.ReadApiKey("elevenlabs"));
     }
@@ -35,6 +47,39 @@ public sealed class InfrastructureTests
         var settings = new JsonSettingsStore(directory.Path).Load();
         Assert.Equal("previous-voice", settings.VoiceId);
         Assert.Equal(1.0, settings.Speed);
+        Assert.Equal(SavedVoice.Defaults, settings.Voices);
+    }
+
+    [Fact]
+    public void LegacyEncryptedKeyMigratesToSettingsWithoutLosingPreferences()
+    {
+        using var directory = new TestDirectory();
+        var settings = new JsonSettingsStore(directory.Path);
+        settings.Save(new AppSettings(VoiceId: "custom-voice", Speed: 1.17));
+        var legacy = Path.Combine(directory.Path, "elevenlabs.key");
+        File.WriteAllBytes(legacy, ProtectedData.Protect(Encoding.UTF8.GetBytes("legacy-test-key"), null, DataProtectionScope.CurrentUser));
+        var secrets = new WindowsSecretStore(directory.Path);
+        Assert.Equal("legacy-test-key", secrets.ReadApiKey("elevenlabs"));
+        Assert.True(File.Exists(legacy));
+        secrets.SaveApiKey("elevenlabs", "legacy-test-key");
+        Assert.False(File.Exists(legacy));
+        Assert.Equal("legacy-test-key", secrets.ReadApiKey("elevenlabs"));
+        Assert.Equal("custom-voice", settings.Load().VoiceId);
+        Assert.Equal(1.17, settings.Load().Speed);
+    }
+
+    [Fact]
+    public void SavedVoiceCatalogRoundTripsWithCustomEntriesAndEncryptedKeys()
+    {
+        using var directory = new TestDirectory();
+        var store = new JsonSettingsStore(directory.Path);
+        var voices = SavedVoice.Defaults.Append(new SavedVoice("Personal", "custom-id")).ToArray();
+        new WindowsSecretStore(directory.Path).SaveApiKey("elevenlabs", "test-key");
+        store.Save(new AppSettings(VoiceId: "custom-id") { Voices = voices });
+        var restored = store.Load();
+        Assert.Equal(voices, restored.Voices);
+        Assert.Equal("custom-id", restored.VoiceId);
+        Assert.Equal("test-key", new WindowsSecretStore(directory.Path).ReadApiKey("elevenlabs"));
     }
 
     [Fact]

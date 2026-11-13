@@ -10,3 +10,4 @@ TestResults/
 *.wav
 *.partial
 .env
+.tools/
